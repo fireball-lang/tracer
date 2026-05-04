@@ -1,0 +1,267 @@
+mod tracer;
+
+import tracer::c;
+import tracer::math::{Vec3, linear_to_gamma, clamp};
+
+struct Image {
+    width: u32,
+    height: u32,
+    pixels: *mut u8,
+}
+
+impl Image {
+    func new(width: u32, height: u32) Image {
+        var image: Image;
+
+        image.width = width;
+        image.height = height;
+        image.pixels = c::malloc((width * height * 3u) as u64) as *mut u8;
+
+        return image;
+    }
+
+    func set(self, x: u32, y: u32, color: Vec3) {
+        var pixel = &self.pixels[(y * self.width + x) * 3u];
+
+        var r = linear_to_gamma(color.x);
+        var g = linear_to_gamma(color.y);
+        var b = linear_to_gamma(color.z);
+
+        pixel[0] = (256.0f * clamp(r, 0.0f, 0.999f)) as u8;
+        pixel[1] = (256.0f * clamp(g, 0.0f, 0.999f)) as u8;
+        pixel[2] = (256.0f * clamp(b, 0.0f, 0.999f)) as u8;
+    }
+
+    func delete(self) {
+        c::free(self.pixels);
+    }
+}
+
+// PNG writer
+
+impl Image {
+    func write(self, path: StringView) {
+        var file = c::fopen(path, "wb");
+        var crc_table = create_crc_table();
+
+        // PNG signature
+        var sig: [8]u8;
+        sig[0] = 0x89;
+        sig[1] = 0x50;
+        sig[2] = 0x4E;
+        sig[3] = 0x47;
+        sig[4] = 0x0D;
+        sig[5] = 0x0A;
+        sig[6] = 0x1A;
+        sig[7] = 0x0A;
+
+        c::fwrite(&sig, 8u, 1u, file);
+
+        // IHDR
+        {
+            write_u32(file, 13u);
+
+            var chunk: Chunk;
+            chunk.file = file;
+            chunk.crc_table = crc_table;
+            chunk.c = 0xFFFFFFFF;
+
+            chunk.write_str("IHDR");
+
+            chunk.write_u32(self.width); // width
+            chunk.write_u32(self.height); // height
+            chunk.write(8u); // bit depth
+            chunk.write(2u); // color type
+            chunk.write(0u); // compression method
+            chunk.write(0u); // filter method
+            chunk.write(0u); // interlace method
+
+            chunk.finish();
+        }
+
+        // IDAT
+        {
+            var filtered_size = self.height * (self.width * 3u + 1u);
+
+            // 1. Compute Adler-32 directly from pixel data
+            var adler_a = 1u;
+            var adler_b = 0u;
+
+            for (var y = 0u; y < self.height; y++) {
+                // Filter byte is 0x00, so adler_a is unchanged; just update adler_b
+                adler_b = (adler_b + adler_a) % 65521u;
+
+                var row_start = y * self.width * 3u;
+
+                for (var x = 0u; x < self.width * 3u; x++) {
+                    adler_a = (adler_a + (self.pixels[row_start + x] as u32)) % 65521u;
+                    adler_b = (adler_b + adler_a) % 65521u;
+                }
+            }
+
+            var adler = (adler_b << 16u) | adler_a;
+
+            // 2. Calculate exact IDAT size
+            var num_blocks = filtered_size / 65535u;
+
+            if ((filtered_size % 65535u) != 0u) {
+                num_blocks = num_blocks + 1u;
+            }
+
+            var idat_size = 2u + (num_blocks * 5u) + filtered_size + 4u;
+
+            write_u32(file, idat_size);
+
+            var chunk: Chunk;
+            chunk.file = file;
+            chunk.crc_table = crc_table;
+            chunk.c = 0xFFFFFFFF;
+
+            chunk.write_str("IDAT");
+            chunk.write(0x78);
+            chunk.write(0x01);
+
+            // 3. Write DEFLATE blocks directly, tracking position with (row, col)
+            //    col == 0 -> emit filter byte (0x00)
+            //    col > 0  -> emit self.pixels[row * width * 3 + (col - 1)]
+            var bytes_left = filtered_size;
+            var cur_row = 0u;
+            var cur_col = 0u;
+
+            while (bytes_left > 0u) {
+                var block_size = bytes_left;
+                if (block_size > 65535u) {
+                    block_size = 65535u;
+                }
+
+                if (bytes_left == block_size) {
+                    chunk.write(0x01);
+                } else {
+                    chunk.write(0x00);
+                }
+
+                chunk.write(((block_size >>> 0u) & 0xFF) as u8);
+                chunk.write(((block_size >>> 8u) & 0xFF) as u8);
+
+                var nlen = block_size ^ 0xFFFF;
+                chunk.write(((nlen >>> 0u) & 0xFF) as u8);
+                chunk.write(((nlen >>> 8u) & 0xFF) as u8);
+
+                for (var i = 0u; i < block_size; i++) {
+                    if (cur_col == 0u) {
+                        chunk.write(0u); // filter byte
+                    } else {
+                        chunk.write(self.pixels[cur_row * self.width * 3u + (cur_col - 1u)]);
+                    }
+
+                    cur_col++;
+                    if (cur_col > self.width * 3u) {
+                        cur_col = 0u;
+                        cur_row++;
+                    }
+                }
+
+                bytes_left = bytes_left - block_size;
+            }
+
+            chunk.write_u32(adler);
+
+            chunk.finish();
+        }
+
+        // IEND
+        {
+            write_u32(file, 0u);
+
+            var chunk: Chunk;
+            chunk.file = file;
+            chunk.crc_table = crc_table;
+            chunk.c = 0xFFFFFFFF;
+
+            chunk.write_str("IEND");
+
+            chunk.finish();
+        }
+
+        c::free(crc_table);
+        c::fclose(file);
+    }
+}
+
+struct Chunk {
+    file: *c::File,
+
+    crc_table: *u32,
+    c: u32,
+
+    buffer: [64]u8,
+    size: u32,
+}
+
+impl Chunk {
+    func write_str(mut self, str: StringView) {
+        for (var i = 0u; i < str.size; i++) {
+            self.write(str.ptr[i]);
+        }
+    }
+
+    func write_u32(mut self, val: u32) {
+        self.write(((val >>> 24u) & 0xFF) as u8);
+        self.write(((val >>> 16u) & 0xFF) as u8);
+        self.write(((val >>> 8u) & 0xFF) as u8);
+        self.write(((val >>> 0u) & 0xFF) as u8);
+    }
+
+    func write(mut self, val: u8) {
+        // Write
+        self.buffer[self.size++] = val;
+        self.flush(false);
+
+        // Update CRC
+        var index = (self.c ^ val) & 0xFF;
+        self.c = (self.c >>> 8u) ^ self.crc_table[index];
+    }
+
+    func finish(mut self) {
+        self.flush(true);
+        write_u32(self.file, self.c ^ 0xFFFFFFFF);
+    }
+
+    func flush(mut self, force: bool) {
+        if (self.size >= 64u || (force && self.size > 0u)) {
+            c::fwrite(&self.buffer, self.size, 1u, self.file);
+            self.size = 0u;
+        }
+    }
+}
+
+func write_u32(file: *c::File, val: u32) {
+    var buffer: [4]u8;
+
+    buffer[0] = ((val >>> 24u) & 0xFF) as u8;
+    buffer[1] = ((val >>> 16u) & 0xFF) as u8;
+    buffer[2] = ((val >>> 8u) & 0xFF) as u8;
+    buffer[3] = ((val >>> 0u) & 0xFF) as u8;
+
+    c::fwrite(&buffer, 4u, 1u, file);
+}
+
+func create_crc_table() *u32 {
+    var table = c::malloc(256u * 4u) as *mut u32;
+
+    for (var i = 0u; i < 256u; i++) {
+        var c = i;
+
+        for (var k = 0; k < 8; k++) {
+            if ((c & 1u) == 1u) {
+                c = (c >>> 1u) ^ 0xEDB88320;
+            } else {
+                c = (c >>> 1u);
+            }
+        }
+
+        table[i] = c;
+    }
+
+    return table;
+}

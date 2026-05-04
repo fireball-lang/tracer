@@ -1,0 +1,100 @@
+mod tracer;
+
+import tracer::scene::{Hit, Scene, Sphere, Lambertian};
+import tracer::math::{Ray, Vec3, random};
+import tracer::{Image, Camera, Timer};
+
+func create_scene() *mut Scene {
+    var scene = Scene::new();
+
+    scene.add(Sphere::new(
+        Vec3::new(0.0f, -100.5f, -1.0f),
+        100.0f,
+        Lambertian::new(Vec3::new(0.8f, 0.8f, 0.0f)),
+    ));
+
+    scene.add(Sphere::new(
+        Vec3::new(0.0f, 0.0f, -1.2f),
+        0.5f,
+        Lambertian::new(Vec3::new(0.1f, 0.2f, 0.5f)),
+    ));
+
+    scene.add(Sphere::new(
+        Vec3::new(-1.0f, 0.0f, -1.0f),
+        0.5f,
+        Lambertian::new(Vec3::new(0.3f, 0.6f, 0.7f)),
+    ));
+
+    scene.add(Sphere::new(
+        Vec3::new(1.0f, 0.0f, -1.0f),
+        0.5f,
+        Lambertian::new(Vec3::new(0.8f, 0.6f, 0.2f)),
+    ));
+
+    return scene;
+}
+
+func main() {
+    var image = Image::new(1280u, 720u);
+
+    var camera = Camera::new(
+        Vec3::new(-2, 2, 1),
+        Vec3::new(0, 0, -1),
+        50,
+        (image.width as f32) / (image.height as f32),
+    );
+
+    var scene = create_scene();
+
+    var samples = 16;
+    var depth = 6;
+
+    var rng = 564961u;
+
+    var timer = Timer::start();
+
+    for (var y = 0u; y < image.height; y++) {
+        for (var x = 0u; x < image.width; x++) {
+            var color: Vec3;
+
+            for (var i = 0; i < samples; i++) {
+                var u = (x as f32 + random(&rng)) / (image.width as f32 - 1.0f);
+                var v = 1.0f - (y as f32 + random(&rng)) / (image.height as f32 - 1.0f);
+
+                var ray = camera.get_ray(u ,v);
+                var sample_color = ray_color(&rng, ray, scene, depth);
+
+                color = color.add(sample_color);
+            }
+
+            image.set(x, y, color.div_splat(samples as f32));
+        }
+    }
+
+    timer.end("Rendered in ");
+
+    image.write("image.png");
+    image.delete();
+}
+
+func ray_color(rng: *mut u32, ray: Ray, scene: *Scene, depth: i32) Vec3 {
+    if (depth <= 0) {
+        return Vec3::splat(0);
+    }
+
+    var hit: Hit;
+
+    if (scene.hit(ray, 0.001f, 999999.0f, &hit)) {
+        var attenuation: Vec3;
+        var scattered: Ray;
+
+        if (hit.material.scatter(rng, ray, hit, &attenuation, &scattered)) {
+            return attenuation.mul(ray_color(rng, scattered, scene, depth - 1));
+        }
+
+        return Vec3::splat(0);
+    }
+
+    var a = 0.5f * (ray.direction.y + 1.0f);
+    return Vec3::splat(1.0f - a).add(Vec3::new(0.5f, 0.7f, 1.0f).mul_splat(a));
+}

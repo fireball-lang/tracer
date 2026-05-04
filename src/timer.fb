@@ -1,0 +1,35 @@
+mod tracer;
+
+import tracer::c::{Timespec, timespec_get, printf};
+
+struct Timer {
+    start: Timespec,
+}
+
+impl Timer {
+    func start() Timer {
+        var timer: Timer;
+        timespec_get(&timer.start, 1);
+
+        return timer;
+    }
+
+    func end(self, text: StringView) {
+        var end: Timespec;
+        timespec_get(&end, 1);
+
+        var second = 1000000000u as u64;
+
+        var start_total = (self.start.seconds as u64) * second + (self.start.nanoseconds as u64);
+        var end_total = (end.seconds as u64) * second + (end.nanoseconds as u64);
+        var duration = end_total - start_total;
+
+        printf(text.ptr);
+
+        if (duration > second) {
+            printf("%.3f seconds\n".ptr, (duration as f64) / 1000000000.0);
+        } else {
+            printf("%.3f milliseconds\n".ptr, (duration as f64) / 1000000.0);
+        }
+    }
+}

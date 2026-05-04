@@ -1,0 +1,55 @@
+mod tracer::scene;
+
+import tracer::scene::{Lambertian, Hit};
+import tracer::math::{Ray, Vec3, sqrt};
+import tracer::c::{malloc};
+
+struct Sphere {
+    center: Vec3,
+    radius: f32,
+    material: *Lambertian,
+}
+
+impl Sphere {
+    func new(center: Vec3, radius: f32, material: *Lambertian) *mut Sphere {
+        var object = malloc(sizeof(Sphere)) as *mut Sphere;
+
+        object.center = center;
+        object.radius = radius;
+        object.material = material;
+
+        return object;
+    }
+}
+
+impl Sphere {
+    func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+        var oc = self.center.sub(ray.origin);
+        var a = ray.direction.length_squared();
+        var h = ray.direction.dot(oc);
+        var c = oc.length_squared() - self.radius * self.radius;
+
+        var discriminant = h * h - a * c;
+        if (discriminant < 0.0f) return false;
+
+        var sqrtd = sqrt(discriminant);
+
+        // Find the nearest root that lies in the acceptable range.
+        var root = (h - sqrtd) / a;
+
+        if (root <= ray_tmin || ray_tmax <= root) {
+            root = (h + sqrtd) / a;
+
+            if (root <= ray_tmin || ray_tmax <= root) {
+                return false;
+            }
+        }
+
+        hit.t = root;
+        hit.point = ray.at(hit.t);
+        hit.set_face_normal(ray, hit.point.sub(self.center).div_splat(self.radius));
+        hit.material = self.material;
+
+        return true;
+    }
+}

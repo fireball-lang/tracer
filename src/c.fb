@@ -1,0 +1,41 @@
+mod tracer::c;
+
+// STDIO
+
+#[extern]
+func printf(fmt: *u8, ...) void
+
+// Memory
+
+#[extern]
+func malloc(size: u64) *mut void
+
+#[extern]
+func free(ptr: *void) void
+
+// File IO
+
+struct File {}
+
+#[extern, link_name("fopen")]
+func _fopen(path: *u8, mode: *u8) *File
+
+func fopen(path: StringView, mode: StringView) *File {
+    return _fopen(path.ptr, mode.ptr);
+}
+
+#[extern]
+func fwrite(data: *void, size: u64, count: u64, file: *File) u64
+
+#[extern]
+func fclose(file: *File) i32
+
+// Time
+
+struct Timespec {
+    seconds: i64,
+    nanoseconds: i64,
+}
+
+#[extern]
+func timespec_get(ts: *mut Timespec, base: i32) i32

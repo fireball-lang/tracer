@@ -1,0 +1,46 @@
+mod tracer::scene;
+
+import tracer::scene::{Sphere, Hit};
+import tracer::math::{Ray};
+import tracer::c::{malloc};
+
+struct Scene {
+    objects: [16]*Sphere,
+    count: i32,
+}
+
+impl Scene {
+    func new() *mut Scene {
+        var scene = malloc(sizeof(Scene)) as *mut Scene;
+        scene.count = 0;
+
+        return scene;
+    }
+
+    func add(mut self, object: *Sphere) {
+        if (self.count >= 16) {
+            return;
+        }
+
+        self.objects[self.count] = object;
+        self.count++;
+    }
+}
+
+impl Scene {
+    func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+        var temp_hit: Hit;
+        var hit_anything = false;
+        var closest_so_far = ray_tmax;
+
+        for (var i = 0; i < self.count; i++) {
+            if (self.objects[i].hit(ray, ray_tmin, closest_so_far, &temp_hit)) {
+                hit_anything = true;
+                closest_so_far = temp_hit.t;
+                *hit = temp_hit;
+            }
+        }
+
+        return hit_anything;
+    }
+}

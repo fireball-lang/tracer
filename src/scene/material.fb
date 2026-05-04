@@ -1,0 +1,33 @@
+mod tracer::scene;
+
+import tracer::scene::{Hit};
+import tracer::math::{Ray, Vec3, random_direction};
+import tracer::c::{malloc};
+
+struct Lambertian {
+    albedo: Vec3,
+}
+
+impl Lambertian {
+    func new(albedo: Vec3) *mut Lambertian {
+        var material = malloc(sizeof(Lambertian)) as *mut Lambertian;
+        material.albedo = albedo;
+
+        return material;
+    }
+}
+
+impl Lambertian {
+    func scatter(self, rng: *mut u32, ray: Ray, hit: Hit, attenuation: *mut Vec3, scattered: *mut Ray) bool {
+        var direction = hit.normal.add(random_direction(rng));
+
+        if (direction.near_zero()) {
+            direction = hit.normal;
+        }
+
+        *attenuation = self.albedo;
+        *scattered = Ray::new(hit.point, direction);
+
+        return true;
+    }
+}
