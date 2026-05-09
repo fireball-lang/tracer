@@ -13,6 +13,9 @@ func malloc(size: u64) *mut void
 #[extern]
 func free(ptr: *void) void
 
+#[extern]
+func memcpy(dst: *void, src: *void, size: u64) *void
+
 // File IO
 
 struct File {}

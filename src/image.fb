@@ -1,7 +1,7 @@
 mod tracer;
 
-import tracer::c;
 import tracer::math::{Vec3, linear_to_gamma, clamp};
+import tracer::c;
 
 struct Image {
     width: u32,
