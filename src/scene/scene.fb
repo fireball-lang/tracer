@@ -27,7 +27,7 @@ impl Scene {
         var hit_anything = false;
         var closest_so_far = ray_tmax;
 
-        for (var i = 0u; i < self.objects.get_size(); i++) {
+        for (var i = 0u; i < self.objects.size(); i++) {
             if (self.objects.get(i).hit(ray, ray_tmin, closest_so_far, &temp_hit)) {
                 hit_anything = true;
                 closest_so_far = temp_hit.t;
