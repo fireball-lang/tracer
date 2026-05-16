@@ -3,16 +3,16 @@ mod tracer::scene;
 import tracer::scene::{Lambertian};
 import tracer::math::{Ray, Vec3};
 
-struct Hit {
-    point: Vec3,
-    normal: Vec3,
-    material: *Lambertian,
-    t: f32,
-    front_face: bool,
+pub struct Hit {
+    pub point: Vec3,
+    pub normal: Vec3,
+    pub material: *Lambertian,
+    pub t: f32,
+    pub front_face: bool,
 }
 
 impl Hit {
-    func set_face_normal(mut self, ray: Ray, outward_normal: Vec3) {
+    pub func set_face_normal(mut self, ray: Ray, outward_normal: Vec3) {
         self.front_face = ray.direction.dot(outward_normal) < 0.0f;
 
         if (self.front_face) self.normal = outward_normal;

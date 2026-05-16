@@ -1,33 +1,33 @@
 mod tracer::math;
 
-func abs(v: f32) f32 {
+pub func abs(v: f32) f32 {
     if (v < 0.0f) return v * -1.0f;
     return v;
 }
 
-func min(a: f32, b: f32) f32 {
+pub func min(a: f32, b: f32) f32 {
     if (a < b) return a;
     return b;
 }
 
-func max(a: f32, b: f32) f32 {
+pub func max(a: f32, b: f32) f32 {
     if (a > b) return a;
     return b;
 }
 
-func sign(v: f32) f32 {
+pub func sign(v: f32) f32 {
     if (v > 0.0f) return 1.0f;
     if (v < 0.0f) return -1.0f;
     return 0;
 }
 
-func clamp(v: f32, min: f32, max: f32) f32 {
+pub func clamp(v: f32, min: f32, max: f32) f32 {
     if (v < min) return min;
     if (v > max) return max;
     return v;
 }
 
-func linear_to_gamma(linear: f32) f32 {
+pub func linear_to_gamma(linear: f32) f32 {
     if (linear > 0.0f) {
         return sqrt(linear);
     }
@@ -35,22 +35,22 @@ func linear_to_gamma(linear: f32) f32 {
     return 0.0f;
 }
 
-func deg_to_rad(deg: f32) f32 {
+pub func deg_to_rad(deg: f32) f32 {
     var pi = 3.1415926535897932384626433832795028841971693993751f;
     return deg * pi / 180.0f;
 }
 
 #[extern, link_name("sqrtf")]
-func sqrt(v: f32) f32
+pub func sqrt(v: f32) f32
 
 #[extern, link_name("sinf")]
-func sin(v: f32) f32
+pub func sin(v: f32) f32
 
 #[extern, link_name("cosf")]
-func cos(v: f32) f32
+pub func cos(v: f32) f32
 
 #[extern, link_name("tanf")]
-func tan(v: f32) f32
+pub func tan(v: f32) f32
 
 #[extern, link_name("logf")]
-func log(v: f32) f32
+pub func log(v: f32) f32

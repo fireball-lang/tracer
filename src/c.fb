@@ -3,18 +3,18 @@ mod tracer::c;
 // STDIO
 
 #[extern]
-func printf(fmt: *u8, ...) void
+pub func printf(fmt: *u8, ...) void
 
 // Memory
 
 #[extern]
-func malloc(size: u64) *mut void
+pub func malloc(size: u64) *mut void
 
 #[extern]
-func free(ptr: *void) void
+pub func free(ptr: *void) void
 
 #[extern]
-func memcpy(dst: *void, src: *void, size: u64) *void
+pub func memcpy(dst: *void, src: *void, size: u64) *void
 
 // File IO
 
@@ -23,22 +23,22 @@ struct File {}
 #[extern, link_name("fopen")]
 func _fopen(path: *u8, mode: *u8) *File
 
-func fopen(path: StringView, mode: StringView) *File {
+pub func fopen(path: StringView, mode: StringView) *File {
     return _fopen(path.ptr, mode.ptr);
 }
 
 #[extern]
-func fwrite(data: *void, size: u64, count: u64, file: *File) u64
+pub func fwrite(data: *void, size: u64, count: u64, file: *File) u64
 
 #[extern]
-func fclose(file: *File) i32
+pub func fclose(file: *File) i32
 
 // Time
 
-struct Timespec {
-    seconds: i64,
-    nanoseconds: i64,
+pub struct Timespec {
+    pub seconds: i64,
+    pub nanoseconds: i64,
 }
 
 #[extern]
-func timespec_get(ts: *mut Timespec, base: i32) i32
+pub func timespec_get(ts: *mut Timespec, base: i32) i32

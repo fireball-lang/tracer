@@ -4,14 +4,14 @@ import tracer::scene::{Lambertian, Hit};
 import tracer::math::{Ray, Vec3, sqrt};
 import tracer::c::{malloc};
 
-struct Sphere {
-    center: Vec3,
-    radius: f32,
-    material: *Lambertian,
+pub struct Sphere {
+    pub center: Vec3,
+    pub radius: f32,
+    pub material: *Lambertian,
 }
 
 impl Sphere {
-    func new(center: Vec3, radius: f32, material: *Lambertian) *mut Sphere {
+    pub func new(center: Vec3, radius: f32, material: *Lambertian) *mut Sphere {
         var object = malloc(sizeof(Sphere)) as *mut Sphere;
 
         object.center = center;
@@ -23,7 +23,7 @@ impl Sphere {
 }
 
 impl Sphere {
-    func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
         var oc = self.center.sub(ray.origin);
         var a = ray.direction.length_squared();
         var h = ray.direction.dot(oc);

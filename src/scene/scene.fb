@@ -5,29 +5,29 @@ import tracer::math::{Ray};
 import tracer::c::{malloc};
 import tracer::{ArrayList};
 
-struct Scene {
+pub struct Scene {
     objects: ArrayList[*Sphere],
 }
 
 impl Scene {
-    func new() *mut Scene {
+    pub func new() *mut Scene {
         var scene = malloc(sizeof(Scene)) as *mut Scene;
 
         return scene;
     }
 
-    func add(mut self, object: *Sphere) {
+    pub func add(mut self, object: *Sphere) {
         self.objects.add(object);
     }
 }
 
 impl Scene {
-    func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
         var temp_hit: Hit;
         var hit_anything = false;
         var closest_so_far = ray_tmax;
 
-        for (var i = 0u; i < self.objects.size; i++) {
+        for (var i = 0u; i < self.objects.get_size(); i++) {
             if (self.objects.get(i).hit(ray, ray_tmin, closest_so_far, &temp_hit)) {
                 hit_anything = true;
                 closest_so_far = temp_hit.t;

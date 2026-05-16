@@ -2,19 +2,19 @@ mod tracer;
 
 import tracer::c::{Timespec, timespec_get, printf};
 
-struct Timer {
+pub struct Timer {
     start: Timespec,
 }
 
 impl Timer {
-    func start() Timer {
+    pub func start() Timer {
         var timer: Timer;
         timespec_get(&timer.start, 1);
 
         return timer;
     }
 
-    func end(self, text: StringView) {
+    pub func end(self, text: StringView) {
         var end: Timespec;
         timespec_get(&end, 1);
 

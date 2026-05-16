@@ -2,14 +2,14 @@ mod tracer;
 
 import tracer::c::{malloc, free, memcpy};
 
-struct ArrayList[T] {
+pub struct ArrayList[T] {
     ptr: *mut T,
     size: u32,
     capacity: u32,
 }
 
 impl[T] ArrayList[T] {
-    func add(mut self, item: T) {
+    pub func add(mut self, item: T) {
         if (self.size + 1u >= self.capacity) {
             var new_capacity = self.capacity * 2u;
             if (new_capacity == 0u) new_capacity = 8u;
@@ -25,7 +25,11 @@ impl[T] ArrayList[T] {
         self.ptr[self.size++] = item;
     }
 
-    func get(self, index: u32) T {
+    pub func get_size(self) u32 {
+        return self.size;
+    }
+
+    pub func get(self, index: u32) T {
         return self.ptr[index];
     }
 }

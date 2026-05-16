@@ -3,14 +3,14 @@ mod tracer;
 import tracer::math::{Vec3, linear_to_gamma, clamp};
 import tracer::c;
 
-struct Image {
+pub struct Image {
     width: u32,
     height: u32,
     pixels: *mut u8,
 }
 
 impl Image {
-    func new(width: u32, height: u32) Image {
+    pub func new(width: u32, height: u32) Image {
         var image: Image;
 
         image.width = width;
@@ -20,7 +20,7 @@ impl Image {
         return image;
     }
 
-    func set(self, x: u32, y: u32, color: Vec3) {
+    pub func set(self, x: u32, y: u32, color: Vec3) {
         var pixel = &self.pixels[(y * self.width + x) * 3u];
 
         var r = linear_to_gamma(color.x);
@@ -32,7 +32,7 @@ impl Image {
         pixel[2] = (256.0f * clamp(b, 0.0f, 0.999f)) as u8;
     }
 
-    func delete(self) {
+    pub func delete(self) {
         c::free(self.pixels);
     }
 }
@@ -40,7 +40,7 @@ impl Image {
 // PNG writer
 
 impl Image {
-    func write(self, path: StringView) {
+    pub func write(self, path: StringView) {
         var file = c::fopen(path, "wb");
         var crc_table = create_crc_table();
 

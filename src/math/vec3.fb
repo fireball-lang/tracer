@@ -2,14 +2,14 @@ mod tracer::math;
 
 import tracer::math::{abs, min, sqrt};
 
-struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+pub struct Vec3 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl Vec3 {
-    func new(x: f32, y: f32, z: f32) Vec3 {
+    pub func new(x: f32, y: f32, z: f32) Vec3 {
         var v: Vec3;
 
         v.x = x;
@@ -19,7 +19,7 @@ impl Vec3 {
         return v;
     }
 
-    func splat(val: f32) Vec3 {
+    pub func splat(val: f32) Vec3 {
         var v: Vec3;
 
         v.x = val;
@@ -29,47 +29,47 @@ impl Vec3 {
         return v;
     }
 
-    func add(self, o: Vec3) Vec3 {
+    pub func add(self, o: Vec3) Vec3 {
         return Vec3::new(self.x + o.x, self.y + o.y, self.z + o.z);
     }
 
-    func add_splat(self, o: f32) Vec3 {
+    pub func add_splat(self, o: f32) Vec3 {
         return Vec3::new(self.x + o, self.y + o, self.z + o);
     }
 
-    func sub(self, o: Vec3) Vec3 {
+    pub func sub(self, o: Vec3) Vec3 {
         return Vec3::new(self.x - o.x, self.y - o.y, self.z - o.z);
     }
 
-    func sub_splat(self, o: f32) Vec3 {
+    pub func sub_splat(self, o: f32) Vec3 {
         return Vec3::new(self.x - o, self.y - o, self.z - o);
     }
 
-    func mul(self, o: Vec3) Vec3 {
+    pub func mul(self, o: Vec3) Vec3 {
         return Vec3::new(self.x * o.x, self.y * o.y, self.z * o.z);
     }
 
-    func mul_splat(self, o: f32) Vec3 {
+    pub func mul_splat(self, o: f32) Vec3 {
         return Vec3::new(self.x * o, self.y * o, self.z * o);
     }
 
-    func div(self, o: Vec3) Vec3 {
+    pub func div(self, o: Vec3) Vec3 {
         return Vec3::new(self.x / o.x, self.y / o.y, self.z / o.z);
     }
 
-    func div_splat(self, o: f32) Vec3 {
+    pub func div_splat(self, o: f32) Vec3 {
         return Vec3::new(self.x / o, self.y / o, self.z / o);
     }
 
-    func length_squared(self) f32 {
+    pub func length_squared(self) f32 {
         return self.x * self.x + self.y * self.y + self.z * self.z;
     }
 
-    func length(self) f32 {
+    pub func length(self) f32 {
         return sqrt(self.length_squared());
     }
 
-    func normalized(self) Vec3 {
+    pub func normalized(self) Vec3 {
         var length = self.length();
 
         return Vec3::new(
@@ -79,11 +79,11 @@ impl Vec3 {
         );
     }
 
-    func dot(self, v: Vec3) f32 {
+    pub func dot(self, v: Vec3) f32 {
         return self.x * v.x + self.y * v.y + self.z * v.z;
     }
 
-    func cross(self, v: Vec3) Vec3 {
+    pub func cross(self, v: Vec3) Vec3 {
         return Vec3::new(
             self.y * v.z - self.z * v.y,
             self.z * v.x - self.x * v.z,
@@ -91,16 +91,16 @@ impl Vec3 {
         );
     }
 
-    func near_zero(self) bool {
+    pub func near_zero(self) bool {
         var s = 0.00000001f;
         return (abs(self.x) < s) && (abs(self.y) < s) && (abs(self.z) < s);
     }
 
-    func reflect(self, normal: Vec3) Vec3 {
+    pub func reflect(self, normal: Vec3) Vec3 {
         return self.sub(normal.mul_splat(2.0f * self.dot(normal)));
     }
 
-    func refract(self, normal: Vec3, etai_over_etat: f32) Vec3 {
+    pub func refract(self, normal: Vec3, etai_over_etat: f32) Vec3 {
         var cos_theta = min(self.mul_splat(-1.0f).dot(normal), 1.0f);
         var r_out_perp =  self.add(normal.mul_splat(cos_theta)).mul_splat(etai_over_etat);
         var r_out_parallel = normal.mul_splat(-sqrt(abs(1.0f - r_out_perp.length_squared())));

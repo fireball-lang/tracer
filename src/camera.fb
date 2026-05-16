@@ -2,7 +2,7 @@ mod tracer;
 
 import tracer::math::{Ray, Vec3, deg_to_rad, tan};
 
-struct Camera {
+pub struct Camera {
     origin: Vec3,
     lower_left_corner: Vec3,
     horizontal: Vec3,
@@ -10,7 +10,7 @@ struct Camera {
 }
 
 impl Camera {
-    func new(position: Vec3, look_at: Vec3, fov: f32, aspect_ratio: f32) Camera {
+    pub func new(position: Vec3, look_at: Vec3, fov: f32, aspect_ratio: f32) Camera {
         var camera: Camera;
 
         var theta = deg_to_rad(fov);
@@ -33,7 +33,7 @@ impl Camera {
         return camera;
     }
 
-    func get_ray(self, u: f32, v: f32) Ray {
+    pub func get_ray(self, u: f32, v: f32) Ray {
         return Ray::new(self.origin, self.lower_left_corner.add(self.horizontal.mul_splat(u)).add(self.vertical.mul_splat(v)).sub(self.origin));
     }
 }
