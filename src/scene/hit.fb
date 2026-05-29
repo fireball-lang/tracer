@@ -1,12 +1,12 @@
 mod tracer::scene;
 
-import tracer::scene::{Lambertian};
+import tracer::scene::{Material};
 import tracer::math::{Ray, Vec3};
 
 pub struct Hit {
     pub point: Vec3,
     pub normal: Vec3,
-    pub material: *Lambertian,
+    pub material: Material,
     pub t: f32,
     pub front_face: bool,
 }

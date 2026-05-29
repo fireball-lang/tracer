@@ -1,17 +1,17 @@
 mod tracer::scene;
 
-import tracer::scene::{Lambertian, Hit};
+import tracer::scene::{Material, Hit};
 import tracer::math::{Ray, Vec3, sqrt};
 import tracer::c::{malloc};
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: *Lambertian,
+    pub material: Material,
 }
 
 impl Sphere {
-    pub func new(center: Vec3, radius: f32, material: *Lambertian) *mut Sphere {
+    pub func new(center: Vec3, radius: f32, material: Material) *mut Sphere {
         var object = malloc(sizeof(Sphere)) as *mut Sphere;
 
         object.center = center;

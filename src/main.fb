@@ -1,34 +1,44 @@
 mod tracer;
 
-import tracer::scene::{Hit, Scene, Sphere, Lambertian};
+import tracer::scene::{Hit, Scene, Sphere, Lambertian, Metal, Dielectric};
 import tracer::math::{Ray, Vec3, random};
 import tracer::{Image, Camera, Timer};
 
 func create_scene() *mut Scene {
     var scene = Scene::new();
 
+    // Ground
     scene.add(Sphere::new(
         Vec3::new(0.0f, -100.5f, -1.0f),
         100.0f,
         Lambertian::new(Vec3::new(0.8f, 0.8f, 0.0f)),
     ));
 
+    // Center
     scene.add(Sphere::new(
         Vec3::new(0.0f, 0.0f, -1.2f),
         0.5f,
         Lambertian::new(Vec3::new(0.1f, 0.2f, 0.5f)),
     ));
 
+    // Left
     scene.add(Sphere::new(
         Vec3::new(-1.0f, 0.0f, -1.0f),
         0.5f,
-        Lambertian::new(Vec3::new(0.3f, 0.6f, 0.7f)),
+        Dielectric::new(1.5f),
     ));
 
     scene.add(Sphere::new(
+        Vec3::new(-1.0f, 0.0f, -1.0f),
+        0.4f,
+        Dielectric::new(1.0f / 1.5f),
+    ));
+
+    // Right
+    scene.add(Sphere::new(
         Vec3::new(1.0f, 0.0f, -1.0f),
         0.5f,
-        Lambertian::new(Vec3::new(0.8f, 0.6f, 0.2f)),
+        Metal::new(Vec3::new(0.8f, 0.6f, 0.2f), 1.0f),
     ));
 
     return scene;
@@ -61,7 +71,7 @@ func main() {
                 var u = (x as f32 + random(&rng)) / (image.width as f32 - 1.0f);
                 var v = 1.0f - (y as f32 + random(&rng)) / (image.height as f32 - 1.0f);
 
-                var ray = camera.get_ray(u ,v);
+                var ray = camera.get_ray(u, v);
                 var sample_color = ray_color(&rng, ray, scene, depth);
 
                 color = color.add(sample_color);

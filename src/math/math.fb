@@ -54,3 +54,6 @@ pub func tan(v: f32) f32
 
 #[extern, link_name("logf")]
 pub func log(v: f32) f32
+
+#[extern, link_name("powf")]
+pub func pow(base: f32, exponent: f32) f32

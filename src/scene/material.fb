@@ -1,8 +1,14 @@
 mod tracer::scene;
 
 import tracer::scene::{Hit};
-import tracer::math::{Ray, Vec3, random_direction};
+import tracer::math::{Ray, Vec3, random, random_direction, min, sqrt, pow};
 import tracer::c::{malloc};
+
+pub interface Material {
+    func scatter(self, rng: *mut u32, ray: Ray, hit: Hit, attenuation: *mut Vec3, scattered: *mut Ray) bool
+}
+
+// Lambertian
 
 pub struct Lambertian {
     pub albedo: Vec3,
@@ -17,7 +23,7 @@ impl Lambertian {
     }
 }
 
-impl Lambertian {
+impl Lambertian : Material {
     pub func scatter(self, rng: *mut u32, ray: Ray, hit: Hit, attenuation: *mut Vec3, scattered: *mut Ray) bool {
         var direction = hit.normal.add(random_direction(rng));
 
@@ -30,4 +36,77 @@ impl Lambertian {
 
         return true;
     }
+}
+
+// Metal
+
+pub struct Metal {
+    pub albedo: Vec3,
+    pub fuzz: f32,
+}
+
+impl Metal {
+    pub func new(albedo: Vec3, fuzz: f32) *mut Metal {
+        var material = malloc(sizeof(Metal)) as *mut Metal;
+        material.albedo = albedo;
+        material.fuzz = fuzz;
+
+        return material;
+    }
+}
+
+impl Metal : Material {
+    pub func scatter(self, rng: *mut u32, ray: Ray, hit: Hit, attenuation: *mut Vec3, scattered: *mut Ray) bool {
+        var direction = ray.direction.reflect(hit.normal);
+        direction = direction.normalized().add(random_direction(rng).mul_splat(self.fuzz));
+
+        *attenuation = self.albedo;
+        *scattered = Ray::new(hit.point, direction);
+
+        return direction.dot(hit.normal) > 0.0f;
+    }
+}
+
+// Dielectric
+
+pub struct Dielectric {
+    pub refraction_index: f32,
+}
+
+impl Dielectric {
+    pub func new(refraction_index: f32) *mut Dielectric {
+        var material = malloc(sizeof(Dielectric)) as *mut Dielectric;
+        material.refraction_index = refraction_index;
+
+        return material;
+    }
+}
+
+impl Dielectric : Material {
+    pub func scatter(self, rng: *mut u32, ray: Ray, hit: Hit, attenuation: *mut Vec3, scattered: *mut Ray) bool {
+        var ri = self.refraction_index;
+        if (hit.front_face) ri = 1.0f / ri;
+
+        var unit_direction = ray.direction.normalized();
+        var cos_theta = min(unit_direction.mul_splat(-1).dot(hit.normal), 1);
+        var sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+
+        var cannot_refract = ri * sin_theta > 1.0f;
+        var direction: Vec3;
+
+        if (cannot_refract || reflectance(cos_theta, ri) > random(rng)) direction = unit_direction.reflect(hit.normal);
+        else direction = unit_direction.refract(hit.normal, ri);
+
+        *attenuation = Vec3::splat(1);
+        *scattered = Ray::new(hit.point, direction);
+
+        return true;
+    }
+}
+
+func reflectance(cosine: f32, refraction_index: f32) f32 {
+    // Use Schlick's approximation for reflectance.
+    var r0 = (1.0f - refraction_index) / (1.0f + refraction_index);
+    r0 = r0 * r0;
+    return r0 + (1.0f - r0) * pow(1.0f - cosine, 5);
 }
