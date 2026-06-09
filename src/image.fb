@@ -6,7 +6,7 @@ import tracer::c;
 pub struct Image {
     width: u32,
     height: u32,
-    pixels: *mut u8,
+    pixels: mut *u8,
 }
 
 impl Image {
@@ -15,7 +15,7 @@ impl Image {
 
         image.width = width;
         image.height = height;
-        image.pixels = c::malloc((width * height * 3u) as u64) as *mut u8;
+        image.pixels = c::malloc((width * height * 3u) as u64) as mut *u8;
 
         return image;
     }
@@ -247,7 +247,7 @@ func write_u32(file: *c::File, val: u32) {
 }
 
 func create_crc_table() *u32 {
-    var table = c::malloc(256u * 4u) as *mut u32;
+    var table = c::malloc(256u * 4u) as mut *u32;
 
     for (var i = 0u; i < 256u; i++) {
         var c = i;

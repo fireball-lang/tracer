@@ -3,7 +3,7 @@ mod tracer;
 import tracer::c::{malloc, free, memcpy};
 
 pub struct ArrayList[T] {
-    ptr: *mut T,
+    ptr: mut *T,
     size: u32,
     capacity: u32,
 }

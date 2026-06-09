@@ -10,8 +10,8 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub func new() *mut Scene {
-        var scene = malloc(sizeof(Scene)) as *mut Scene;
+    pub func new() mut *Scene {
+        var scene = malloc(sizeof(Scene)) as mut *Scene;
 
         return scene;
     }
@@ -22,7 +22,7 @@ impl Scene {
 }
 
 impl Scene {
-    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: mut *Hit) bool {
         var temp_hit: Hit;
         var hit_anything = false;
         var closest_so_far = ray_tmax;

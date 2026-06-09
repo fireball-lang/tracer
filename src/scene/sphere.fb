@@ -11,8 +11,8 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub func new(center: Vec3, radius: f32, material: Material) *mut Sphere {
-        var object = malloc(sizeof(Sphere)) as *mut Sphere;
+    pub func new(center: Vec3, radius: f32, material: Material) mut *Sphere {
+        var object = malloc(sizeof(Sphere)) as mut *Sphere;
 
         object.center = center;
         object.radius = radius;
@@ -23,7 +23,7 @@ impl Sphere {
 }
 
 impl Sphere {
-    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: *mut Hit) bool {
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: mut *Hit) bool {
         var oc = self.center.sub(ray.origin);
         var a = ray.direction.length_squared();
         var h = ray.direction.dot(oc);

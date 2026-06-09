@@ -8,7 +8,7 @@ pub func printf(fmt: *u8, ...) void
 // Memory
 
 #[extern]
-pub func malloc(size: u64) *mut void
+pub func malloc(size: u64) mut *void
 
 #[extern]
 pub func free(ptr: *void) void
@@ -41,4 +41,4 @@ pub struct Timespec {
 }
 
 #[extern]
-pub func timespec_get(ts: *mut Timespec, base: i32) i32
+pub func timespec_get(ts: mut *Timespec, base: i32) i32

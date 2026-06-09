@@ -2,7 +2,7 @@ mod tracer::math;
 
 import tracer::math::{Vec3, sqrt, cos, log, sign, max};
 
-pub func random(state: *mut u32) f32 {
+pub func random(state: mut *u32) f32 {
     var s = *state * 747796405u + 2891336453u;
     *state = s;
 
@@ -12,13 +12,13 @@ pub func random(state: *mut u32) f32 {
     return (result as f32) / 4294967295.0f;
 }
 
-pub func random_normal_distribution(state: *mut u32) f32 {
+pub func random_normal_distribution(state: mut *u32) f32 {
     var theta = 2.0f * 3.1415926f * random(state);
     var rho = sqrt(-2.0f * log(max(random(state), 0.00001f)));
     return rho * cos(theta);
 }
 
-pub func random_direction(state: *mut u32) Vec3 {
+pub func random_direction(state: mut *u32) Vec3 {
     var x = random_normal_distribution(state);
     var y = random_normal_distribution(state);
     var z = random_normal_distribution(state);
@@ -26,7 +26,7 @@ pub func random_direction(state: *mut u32) Vec3 {
     return Vec3::new(x, y, z).normalized();
 }
 
-pub func random_hemisphere_direction(state: *mut u32, normal: Vec3) Vec3 {
+pub func random_hemisphere_direction(state: mut *u32, normal: Vec3) Vec3 {
     var dir = random_direction(state);
     var s = sign(normal.dot(dir));
 

@@ -4,7 +4,7 @@ import tracer::scene::{Hit, Scene, Sphere, Lambertian, Metal, Dielectric};
 import tracer::math::{Ray, Vec3, random};
 import tracer::{Image, Camera, Timer};
 
-func create_scene() *mut Scene {
+func create_scene() mut *Scene {
     var scene = Scene::new();
 
     // Ground
@@ -87,7 +87,7 @@ func main() {
     image.delete();
 }
 
-func ray_color(rng: *mut u32, ray: Ray, scene: *Scene, depth: i32) Vec3 {
+func ray_color(rng: mut *u32, ray: Ray, scene: *Scene, depth: i32) Vec3 {
     if (depth <= 0) {
         return Vec3::splat(0);
     }
