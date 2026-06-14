@@ -11,13 +11,11 @@ pub struct Image {
 
 impl Image {
     pub func new(width: u32, height: u32) Image {
-        var image: Image;
-
-        image.width = width;
-        image.height = height;
-        image.pixels = c::malloc((width * height * 3u) as u64) as mut *u8;
-
-        return image;
+        return Image {
+            width: width,
+            height: height,
+            pixels: c::malloc((width * height * 3u) as u64) as mut *u8,
+        };
     }
 
     pub func set(self, x: u32, y: u32, color: Vec3) {
@@ -61,10 +59,11 @@ impl Image {
         {
             write_u32(file, 13u);
 
-            var chunk: Chunk;
-            chunk.file = file;
-            chunk.crc_table = crc_table;
-            chunk.c = 0xFFFFFFFF;
+            var chunk = Chunk {
+                file: file,
+                crc_table: crc_table,
+                c: 0xFFFFFFFF,
+            };
 
             chunk.write_str("IHDR");
 
@@ -112,10 +111,11 @@ impl Image {
 
             write_u32(file, idat_size);
 
-            var chunk: Chunk;
-            chunk.file = file;
-            chunk.crc_table = crc_table;
-            chunk.c = 0xFFFFFFFF;
+            var chunk = Chunk {
+                file: file,
+                crc_table: crc_table,
+                c: 0xFFFFFFFF,
+            };
 
             chunk.write_str("IDAT");
             chunk.write(0x78);
@@ -173,10 +173,11 @@ impl Image {
         {
             write_u32(file, 0u);
 
-            var chunk: Chunk;
-            chunk.file = file;
-            chunk.crc_table = crc_table;
-            chunk.c = 0xFFFFFFFF;
+            var chunk = Chunk {
+                file: file,
+                crc_table: crc_table,
+                c: 0xFFFFFFFF,
+            };
 
             chunk.write_str("IEND");
 

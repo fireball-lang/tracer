@@ -9,12 +9,10 @@ pub struct Ray {
 
 impl Ray {
     pub func new(origin: Vec3, direction: Vec3) Ray {
-        var ray: Ray;
-
-        ray.origin = origin;
-        ray.direction = direction.normalized();
-
-        return ray;
+        return Ray {
+            origin: origin,
+            direction: direction.normalized(),
+        };
     }
 
     pub func at(self, t: f32) Vec3 {

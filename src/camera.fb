@@ -11,8 +11,6 @@ pub struct Camera {
 
 impl Camera {
     pub func new(position: Vec3, look_at: Vec3, fov: f32, aspect_ratio: f32) Camera {
-        var camera: Camera;
-
         var theta = deg_to_rad(fov);
         var h = tan(theta / 2.0f);
         var viewport_height = 2.0f * h;
@@ -25,12 +23,12 @@ impl Camera {
         var horizontal = u.mul_splat(viewport_width);
         var vertical = v.mul_splat(viewport_height);
 
-        camera.origin = position;
-        camera.horizontal = horizontal;
-        camera.vertical = vertical;
-        camera.lower_left_corner = position.sub(horizontal.div_splat(2)).sub(vertical.div_splat(2)).sub(w);
-
-        return camera;
+        return Camera {
+            origin: position,
+            horizontal: horizontal,
+            vertical: vertical,
+            lower_left_corner: position.sub(horizontal.div_splat(2)).sub(vertical.div_splat(2)).sub(w),
+        };
     }
 
     pub func get_ray(self, u: f32, v: f32) Ray {
