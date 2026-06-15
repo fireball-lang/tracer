@@ -43,15 +43,10 @@ impl Image {
         var crc_table = create_crc_table();
 
         // PNG signature
-        var sig: [8]u8;
-        sig[0] = 0x89;
-        sig[1] = 0x50;
-        sig[2] = 0x4E;
-        sig[3] = 0x47;
-        sig[4] = 0x0D;
-        sig[5] = 0x0A;
-        sig[6] = 0x1A;
-        sig[7] = 0x0A;
+        var sig = [8]u8 {
+            0x89, 0x50, 0x4E, 0x47,
+            0x0D, 0x0A, 0x1A, 0x0A,
+        };
 
         c::fwrite(&sig, 8u, 1u, file);
 
@@ -237,12 +232,12 @@ impl Chunk {
 }
 
 func write_u32(file: *c::File, val: u32) {
-    var buffer: [4]u8;
-
-    buffer[0] = ((val >>> 24u) & 0xFF) as u8;
-    buffer[1] = ((val >>> 16u) & 0xFF) as u8;
-    buffer[2] = ((val >>> 8u) & 0xFF) as u8;
-    buffer[3] = ((val >>> 0u) & 0xFF) as u8;
+    var buffer = [4]u8 {
+        ((val >>> 24u) & 0xFF) as u8,
+        ((val >>> 16u) & 0xFF) as u8,
+        ((val >>> 8u) & 0xFF) as u8,
+        ((val >>> 0u) & 0xFF) as u8,
+    };
 
     c::fwrite(&buffer, 4u, 1u, file);
 }
