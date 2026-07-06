@@ -1,7 +1,7 @@
 mod tracer;
 
 import tracer::math::{Vec3, linear_to_gamma, clamp};
-import tracer::c;
+import std::c::{malloc, free, File, fopen, fclose, fwrite};
 
 pub struct Image {
     width: u32,
@@ -14,7 +14,7 @@ impl Image {
         return Image {
             width: width,
             height: height,
-            pixels: c::malloc((width * height * 3u) as u64) as mut *u8,
+            pixels: malloc((width * height * 3u) as u64) as mut *u8,
         };
     }
 
@@ -31,7 +31,7 @@ impl Image {
     }
 
     pub func delete(self) {
-        c::free(self.pixels);
+        free(self.pixels);
     }
 }
 
@@ -39,7 +39,7 @@ impl Image {
 
 impl Image {
     pub func write(self, path: StringView) {
-        var file = c::fopen(path, "wb");
+        var file = fopen(path.ptr, "wb".ptr);
         var crc_table = create_crc_table();
 
         // PNG signature
@@ -48,7 +48,7 @@ impl Image {
             0x0D, 0x0A, 0x1A, 0x0A,
         };
 
-        c::fwrite(&sig, 8u, 1u, file);
+        fwrite(&sig, 8u, 1u, file);
 
         // IHDR
         {
@@ -179,13 +179,13 @@ impl Image {
             chunk.finish();
         }
 
-        c::free(crc_table);
-        c::fclose(file);
+        free(crc_table);
+        fclose(file);
     }
 }
 
 struct Chunk {
-    file: *c::File,
+    file: *File,
 
     crc_table: *u32,
     c: u32,
@@ -225,13 +225,13 @@ impl Chunk {
 
     func flush(mut self, force: bool) {
         if (self.size >= 64u || (force && self.size > 0u)) {
-            c::fwrite(&self.buffer, self.size, 1u, self.file);
+            fwrite(&self.buffer, self.size, 1u, self.file);
             self.size = 0u;
         }
     }
 }
 
-func write_u32(file: *c::File, val: u32) {
+func write_u32(file: *File, val: u32) {
     var buffer = [4]u8 {
         ((val >>> 24u) & 0xFF) as u8,
         ((val >>> 16u) & 0xFF) as u8,
@@ -239,11 +239,11 @@ func write_u32(file: *c::File, val: u32) {
         ((val >>> 0u) & 0xFF) as u8,
     };
 
-    c::fwrite(&buffer, 4u, 1u, file);
+    fwrite(&buffer, 4u, 1u, file);
 }
 
 func create_crc_table() *u32 {
-    var table = c::malloc(256u * 4u) as mut *u32;
+    var table = malloc(256u * 4u) as mut *u32;
 
     for (var i = 0u; i < 256u; i++) {
         var c = i;

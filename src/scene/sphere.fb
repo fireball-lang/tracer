@@ -2,7 +2,7 @@ mod tracer::scene;
 
 import tracer::scene::{Material, Hit};
 import tracer::math::{Ray, Vec3, sqrt};
-import tracer::c::{malloc};
+import std::c::{malloc};
 
 pub struct Sphere {
     pub center: Vec3,

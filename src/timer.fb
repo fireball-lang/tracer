@@ -1,6 +1,6 @@
 mod tracer;
 
-import tracer::c::{Timespec, timespec_get, printf};
+import std::c::{Timespec, timespec_get, printf};
 
 pub struct Timer {
     start: Timespec,

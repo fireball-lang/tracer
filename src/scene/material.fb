@@ -2,7 +2,7 @@ mod tracer::scene;
 
 import tracer::scene::{Hit};
 import tracer::math::{Ray, Vec3, random, random_direction, min, sqrt, pow};
-import tracer::c::{malloc};
+import std::c::{malloc};
 
 pub interface Material {
     func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool
