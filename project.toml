@@ -1,6 +1,6 @@
 name = "tracer"
-lib-c = true
+type = "executable"
 
 [[dependency]]
 url = "https://github.com/fireball-lang/std.git"
-revision = "579432c0d4f113a1d6d17c5c43ab7beac4ae25e5"
+revision = "f6deb51c5de719c21a75e2c6a737576271696643"
