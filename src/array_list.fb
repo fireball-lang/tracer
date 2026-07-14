@@ -14,7 +14,7 @@ impl[T] ArrayList[T] {
             var new_capacity = self.capacity * 2u;
             if (new_capacity == 0u) new_capacity = 8u;
 
-            var new_ptr = malloc(new_capacity * sizeof(T));
+            var new_ptr = malloc(new_capacity * sizeof(T)) as mut* T;
             memcpy(new_ptr, self.ptr, self.size * sizeof(T));
             free(self.ptr);
 
