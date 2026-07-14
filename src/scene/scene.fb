@@ -3,7 +3,7 @@ mod tracer::scene;
 import tracer::scene::{Sphere, Hit};
 import tracer::math::{Ray};
 import std::c::{malloc};
-import tracer::{ArrayList};
+import std::{ArrayList};
 
 pub struct Scene {
     objects: ArrayList[*Sphere],
