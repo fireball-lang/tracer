@@ -3,4 +3,4 @@ type = "executable"
 
 [[dependency]]
 url = "https://github.com/fireball-lang/std.git"
-revision = "7dd9deb3cb9aa47b3ae9cf55f619b0f295f3c7c6"
+revision = "e2dd5691bc241bc4c61bc986ec96a8c251f5f6f3"

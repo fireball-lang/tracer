@@ -41,19 +41,19 @@ pub func deg_to_rad(deg: f32) f32 {
 }
 
 #[extern, link_name("sqrtf")]
-pub func sqrt(v: f32) f32
+pub func sqrt(v: f32) f32;
 
 #[extern, link_name("sinf")]
-pub func sin(v: f32) f32
+pub func sin(v: f32) f32;
 
 #[extern, link_name("cosf")]
-pub func cos(v: f32) f32
+pub func cos(v: f32) f32;
 
 #[extern, link_name("tanf")]
-pub func tan(v: f32) f32
+pub func tan(v: f32) f32;
 
 #[extern, link_name("logf")]
-pub func log(v: f32) f32
+pub func log(v: f32) f32;
 
 #[extern, link_name("powf")]
-pub func pow(base: f32, exponent: f32) f32
+pub func pow(base: f32, exponent: f32) f32;
