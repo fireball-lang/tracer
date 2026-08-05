@@ -2,7 +2,11 @@ mod tracer;
 
 import tracer::scene::{Hit, Scene, Sphere, Lambertian, Metal, Dielectric};
 import tracer::math::{Ray, Vec3, random};
-import tracer::{Image, Camera, Timer};
+import tracer::{Image, Camera};
+
+import std::fmt::{Formatter};
+import std::time::{Instant};
+import std::os::{stdout};
 
 func create_scene() mut *Scene {
     var scene = Scene::new();
@@ -61,7 +65,7 @@ func main() {
 
     var rng = 564961u;
 
-    var timer = Timer::start();
+    var start = Instant::now();
 
     for (var y = 0u; y < image.height; y++) {
         for (var x = 0u; x < image.width; x++) {
@@ -81,7 +85,7 @@ func main() {
         }
     }
 
-    timer.end("Rendered in ");
+    print_elapsed(start);
 
     image.write("image.png");
     image.delete();
@@ -107,4 +111,12 @@ func ray_color(rng: mut *u32, ray: Ray, scene: *Scene, depth: i32) Vec3 {
 
     var a = 0.5f * (ray.direction.y + 1.0f);
     return Vec3::splat(1.0f - a) + Vec3::new(0.5f, 0.7f, 1.0f) * Vec3::splat(a);
+}
+
+func print_elapsed(start: Instant) {
+    var fmt = Formatter::new(stdout());
+
+    fmt.str("Rendered in ");
+    start.elapsed().display(fmt);
+    fmt.str("\n");
 }
