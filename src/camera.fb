@@ -16,22 +16,22 @@ impl Camera {
         var viewport_height = 2.0f * h;
         var viewport_width = aspect_ratio * viewport_height;
 
-        var w = position.sub(look_at).normalized();
+        var w = (position - look_at).normalized();
         var u = Vec3::new(0, 1, 0).cross(w).normalized();
         var v = w.cross(u);
 
-        var horizontal = u.mul_splat(viewport_width);
-        var vertical = v.mul_splat(viewport_height);
+        var horizontal = u * Vec3::splat(viewport_width);
+        var vertical = v * Vec3::splat(viewport_height);
 
         return Camera {
             origin: position,
             horizontal: horizontal,
             vertical: vertical,
-            lower_left_corner: position.sub(horizontal.div_splat(2)).sub(vertical.div_splat(2)).sub(w),
+            lower_left_corner: (position - horizontal / Vec3::splat(2)) - (vertical / Vec3::splat(2)) - w,
         };
     }
 
     pub func get_ray(self, u: f32, v: f32) Ray {
-        return Ray::new(self.origin, self.lower_left_corner.add(self.horizontal.mul_splat(u)).add(self.vertical.mul_splat(v)).sub(self.origin));
+        return Ray::new(self.origin, self.lower_left_corner + self.horizontal * Vec3::splat(u) + self.vertical * Vec3::splat(v) - self.origin);
     }
 }

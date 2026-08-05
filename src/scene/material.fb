@@ -25,7 +25,7 @@ impl Lambertian {
 
 impl Lambertian : Material {
     pub func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool {
-        var direction = hit.normal.add(random_direction(rng));
+        var direction = hit.normal + random_direction(rng);
 
         if (direction.near_zero()) {
             direction = hit.normal;
@@ -58,7 +58,7 @@ impl Metal {
 impl Metal : Material {
     pub func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool {
         var direction = ray.direction.reflect(hit.normal);
-        direction = direction.normalized().add(random_direction(rng).mul_splat(self.fuzz));
+        direction = direction.normalized() + random_direction(rng) * Vec3::splat(self.fuzz);
 
         *attenuation = self.albedo;
         *scattered = Ray::new(hit.point, direction);
@@ -88,7 +88,7 @@ impl Dielectric : Material {
         if (hit.front_face) ri = 1.0f / ri;
 
         var unit_direction = ray.direction.normalized();
-        var cos_theta = min(unit_direction.mul_splat(-1).dot(hit.normal), 1);
+        var cos_theta = min((unit_direction * Vec3::splat(-1)).dot(hit.normal), 1);
         var sin_theta = sqrt(1.0f - cos_theta * cos_theta);
 
         var cannot_refract = ri * sin_theta > 1.0f;

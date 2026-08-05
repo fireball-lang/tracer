@@ -77,7 +77,7 @@ func main() {
                 color = color.add(sample_color);
             }
 
-            image.set(x, y, color.div_splat(samples as f32));
+            image.set(x, y, color / Vec3::splat(samples as f32));
         }
     }
 
@@ -99,12 +99,12 @@ func ray_color(rng: mut *u32, ray: Ray, scene: *Scene, depth: i32) Vec3 {
         var scattered: Ray;
 
         if (hit.material.scatter(rng, ray, hit, &attenuation, &scattered)) {
-            return attenuation.mul(ray_color(rng, scattered, scene, depth - 1));
+            return attenuation * ray_color(rng, scattered, scene, depth - 1);
         }
 
         return Vec3::splat(0);
     }
 
     var a = 0.5f * (ray.direction.y + 1.0f);
-    return Vec3::splat(1.0f - a).add(Vec3::new(0.5f, 0.7f, 1.0f).mul_splat(a));
+    return Vec3::splat(1.0f - a) + Vec3::new(0.5f, 0.7f, 1.0f) * Vec3::splat(a);
 }

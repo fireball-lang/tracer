@@ -24,7 +24,7 @@ impl Sphere {
 
 impl Sphere {
     pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: mut *Hit) bool {
-        var oc = self.center.sub(ray.origin);
+        var oc = self.center - ray.origin;
         var a = ray.direction.length_squared();
         var h = ray.direction.dot(oc);
         var c = oc.length_squared() - self.radius * self.radius;
@@ -47,7 +47,7 @@ impl Sphere {
 
         hit.t = root;
         hit.point = ray.at(hit.t);
-        hit.set_face_normal(ray, hit.point.sub(self.center).div_splat(self.radius));
+        hit.set_face_normal(ray, (hit.point - self.center) / Vec3::splat(self.radius));
         hit.material = self.material;
 
         return true;

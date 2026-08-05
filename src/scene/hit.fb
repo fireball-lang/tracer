@@ -16,6 +16,6 @@ impl Hit {
         self.front_face = ray.direction.dot(outward_normal) < 0.0f;
 
         if (self.front_face) self.normal = outward_normal;
-        else self.normal = outward_normal.mul_splat(-1.0f);
+        else self.normal = outward_normal * Vec3::splat(-1.0f);
     }
 }

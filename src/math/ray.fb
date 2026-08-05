@@ -16,6 +16,6 @@ impl Ray {
     }
 
     pub func at(self, t: f32) Vec3 {
-        return self.origin.add(self.direction.mul(Vec3::splat(t)));
+        return self.origin + self.direction * Vec3::splat(t);
     }
 }
