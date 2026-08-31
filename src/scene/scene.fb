@@ -6,35 +6,35 @@ import std::c::{malloc};
 import std::{ArrayList};
 
 pub struct Scene {
-    objects: ArrayList[*Sphere],
+    objects: ArrayList[&Sphere],
 }
 
 impl Scene {
-    pub func new() mut *Scene {
-        var scene = malloc(sizeof(Scene)) as mut *Scene;
+    pub func new() mut &Scene {
+        var scene = malloc(sizeof(Scene)) as mut &Scene;
 
         return scene;
     }
 
-    pub func add(mut self, object: *Sphere) {
+    pub func add(mut self, object: &Sphere) {
         self.objects.add(object);
     }
 }
 
 impl Scene {
-    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: mut *Hit) bool {
-        var temp_hit: Hit;
-        var hit_anything = false;
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32) ?Hit {
+        var closest_hit: ?Hit;
         var closest_so_far = ray_tmax;
 
         for (var i = 0u; i < self.objects.size(); i++) {
-            if (self.objects[i].hit(ray, ray_tmin, closest_so_far, &temp_hit)) {
-                hit_anything = true;
-                closest_so_far = temp_hit.t;
-                *hit = temp_hit;
+            var hit = self.objects[i].hit(ray, ray_tmin, closest_so_far);
+
+            if (hit.is_some()) {
+                closest_hit = hit;
+                closest_so_far = hit.unwrap().t;
             }
         }
 
-        return hit_anything;
+        return closest_hit;
     }
 }

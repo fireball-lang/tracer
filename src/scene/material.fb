@@ -5,7 +5,7 @@ import tracer::math::{Ray, Vec3, random, random_direction, min, sqrt, pow};
 import std::c::{malloc};
 
 pub interface Material {
-    func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool;
+    func scatter(self, rng: mut &u32, ray: Ray, hit: Hit, attenuation: mut &Vec3, scattered: mut &Ray) bool;
 }
 
 // Lambertian
@@ -15,8 +15,8 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub func new(albedo: Vec3) mut *Lambertian {
-        var material = malloc(sizeof(Lambertian)) as mut *Lambertian;
+    pub func new(albedo: Vec3) mut &Lambertian {
+        var material = malloc(sizeof(Lambertian)) as mut &Lambertian;
         material.albedo = albedo;
 
         return material;
@@ -24,7 +24,7 @@ impl Lambertian {
 }
 
 impl Lambertian : Material {
-    pub func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool {
+    pub func scatter(self, rng: mut &u32, ray: Ray, hit: Hit, attenuation: mut &Vec3, scattered: mut &Ray) bool {
         var direction = hit.normal + random_direction(rng);
 
         if (direction.near_zero()) {
@@ -46,8 +46,8 @@ pub struct Metal {
 }
 
 impl Metal {
-    pub func new(albedo: Vec3, fuzz: f32) mut *Metal {
-        var material = malloc(sizeof(Metal)) as mut *Metal;
+    pub func new(albedo: Vec3, fuzz: f32) mut &Metal {
+        var material = malloc(sizeof(Metal)) as mut &Metal;
         material.albedo = albedo;
         material.fuzz = fuzz;
 
@@ -56,7 +56,7 @@ impl Metal {
 }
 
 impl Metal : Material {
-    pub func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool {
+    pub func scatter(self, rng: mut &u32, ray: Ray, hit: Hit, attenuation: mut &Vec3, scattered: mut &Ray) bool {
         var direction = ray.direction.reflect(hit.normal);
         direction = direction.normalized() + random_direction(rng) * Vec3::splat(self.fuzz);
 
@@ -74,8 +74,8 @@ pub struct Dielectric {
 }
 
 impl Dielectric {
-    pub func new(refraction_index: f32) mut *Dielectric {
-        var material = malloc(sizeof(Dielectric)) as mut *Dielectric;
+    pub func new(refraction_index: f32) mut &Dielectric {
+        var material = malloc(sizeof(Dielectric)) as mut &Dielectric;
         material.refraction_index = refraction_index;
 
         return material;
@@ -83,7 +83,7 @@ impl Dielectric {
 }
 
 impl Dielectric : Material {
-    pub func scatter(self, rng: mut *u32, ray: Ray, hit: Hit, attenuation: mut *Vec3, scattered: mut *Ray) bool {
+    pub func scatter(self, rng: mut &u32, ray: Ray, hit: Hit, attenuation: mut &Vec3, scattered: mut &Ray) bool {
         var ri = self.refraction_index;
         if (hit.front_face) ri = 1.0f / ri;
 

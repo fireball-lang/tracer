@@ -53,12 +53,12 @@ impl Vec3 {
     }
 
     pub func reflect(self, normal: Vec3) Vec3 {
-        return self - normal * Vec3::splat(2.0f * self.dot(normal));
+        return *self - normal * Vec3::splat(2.0f * self.dot(normal));
     }
 
     pub func refract(self, normal: Vec3, etai_over_etat: f32) Vec3 {
-        var cos_theta = min((self * Vec3::splat(-1.0f)).dot(normal), 1.0f);
-        var r_out_perp =  (self + normal * Vec3::splat(cos_theta)) * Vec3::splat(etai_over_etat);
+        var cos_theta = min((*self * Vec3::splat(-1.0f)).dot(normal), 1.0f);
+        var r_out_perp =  (*self + normal * Vec3::splat(cos_theta)) * Vec3::splat(etai_over_etat);
         var r_out_parallel = normal * Vec3::splat(-sqrt(abs(1.0f - r_out_perp.length_squared())));
         return r_out_perp + r_out_parallel;
     }

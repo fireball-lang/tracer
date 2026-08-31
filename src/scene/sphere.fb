@@ -11,8 +11,8 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub func new(center: Vec3, radius: f32, material: Material) mut *Sphere {
-        var object = malloc(sizeof(Sphere)) as mut *Sphere;
+    pub func new(center: Vec3, radius: f32, material: Material) mut &Sphere {
+        var object = malloc(sizeof(Sphere)) as mut &Sphere;
 
         object.center = center;
         object.radius = radius;
@@ -23,14 +23,14 @@ impl Sphere {
 }
 
 impl Sphere {
-    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32, hit: mut *Hit) bool {
+    pub func hit(self, ray: Ray, ray_tmin: f32, ray_tmax: f32) ?Hit {
         var oc = self.center - ray.origin;
         var a = ray.direction.length_squared();
         var h = ray.direction.dot(oc);
         var c = oc.length_squared() - self.radius * self.radius;
 
         var discriminant = h * h - a * c;
-        if (discriminant < 0.0f) return false;
+        if (discriminant < 0.0f) return Option:[Hit]::none();
 
         var sqrtd = sqrt(discriminant);
 
@@ -41,15 +41,18 @@ impl Sphere {
             root = (h + sqrtd) / a;
 
             if (root <= ray_tmin || ray_tmax <= root) {
-                return false;
+                return Option:[Hit]::none();
             }
         }
 
-        hit.t = root;
-        hit.point = ray.at(hit.t);
-        hit.set_face_normal(ray, (hit.point - self.center) / Vec3::splat(self.radius));
-        hit.material = self.material;
+        var hit = Hit {
+            t: root,
+            point: ray.at(root),
+            material: self.material,
+        };
 
-        return true;
+        hit.set_face_normal(ray, (hit.point - self.center) / Vec3::splat(self.radius));
+
+        return hit;
     }
 }
