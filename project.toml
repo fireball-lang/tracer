@@ -1,10 +1,13 @@
 name = "tracer"
 type = "executable"
 
+[profile.fb]
+backend = "fireball"
+
 [[dependency]]
 url = "https://github.com/fireball-lang/std.git"
-revision = "04c9fe6854449b626c8b5c4a06446139ee00d8b7"
+revision = "c6a78187165305c09a890a8a8afc95e65d66d43c"
 
 [[dependency]]
 url = "https://github.com/fireball-lang/image.git"
-revision = "0d4c4fec381c71b27f1c82e6688305e79cc5b217"
+revision = "65e4634405d3dbb2c8c4ace1a3207fe3884a6acc"
