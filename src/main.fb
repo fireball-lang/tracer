@@ -122,11 +122,11 @@ pub func set(img: mut &Image[RGB8], x: u32, y: u32, color: Vec3) {
     var g = linear_to_gamma(color.y);
     var b = linear_to_gamma(color.z);
 
-    img.set(x, y, RGB8 {
+    img[x, y] = RGB8 {
         r: (256.0f * clamp(r, 0.0f, 0.999f)) as u8,
         g: (256.0f * clamp(g, 0.0f, 0.999f)) as u8,
         b: (256.0f * clamp(b, 0.0f, 0.999f)) as u8,
-    });
+    };
 }
 
 func print_elapsed(start: Instant) {
