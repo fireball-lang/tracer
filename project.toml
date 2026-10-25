@@ -6,7 +6,7 @@ backend = "fireball"
 
 [[dependency]]
 url = "https://github.com/fireball-lang/std.git"
-revision = "c6a78187165305c09a890a8a8afc95e65d66d43c"
+revision = "b0e43ab97073fa584b0356e8bb8291d6af319611"
 
 [[dependency]]
 url = "https://github.com/fireball-lang/image.git"
